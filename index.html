@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Movie Review & Rating Platform</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .movie {
+      border-bottom: 1px solid #ccc;
+      padding: 20px 0;
+    }
+
+    .movie h2 {
+      margin-bottom: 10px;
+    }
+
+    textarea, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .review {
+      background-color: #f9f9f9;
+      border-left: 4px solid #007bff;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .review small {
+      color: #555;
+    }
+
+    .stars {
+      color: gold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Movie Review & Rating Platform</h1>
+
+    <div id="movie-list">
+      <!-- Movies and reviews will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    // Sample movie data
+    const movies = [
+      { id: 1, title: "The Godfather" },
+      { id: 2, title: "The Dark Knight" },
+      { id: 3, title: "Pulp Fiction" }
+    ];
+
+    // Review storage
+    const reviews = {};
+
+    // Render all movies
+    function renderMovies() {
+      const movieList = document.getElementById("movie-list");
+      movieList.innerHTML = "";
+
+      movies.forEach(movie => {
+        const movieEl = document.createElement("div");
+        movieEl.className = "movie";
+        movieEl.innerHTML = `
+          <h2>${movie.title}</h2>
+          <form data-id="${movie.id}">
+            <textarea placeholder="Write your review..." required></textarea>
+            <select required>
+              <option value="">Select rating</option>
+              <option value="1">1 ★</option>
+              <option value="2">2 ★★</option>
+              <option value="3">3 ★★★</option>
+              <option value="4">4 ★★★★</option>
+              <option value="5">5 ★★★★★</option>
+            </select>
+            <button type="submit">Submit Review</button>
+          </form>
+          <div class="reviews" id="reviews-${movie.id}"></div>
+        `;
+        movieList.appendChild(movieEl);
+      });
+
+      bindForms();
+    }
+
+    // Attach submit event to all review forms
+    function bindForms() {
+      const forms = document.querySelectorAll("form");
+      forms.forEach(form => {
+        form.addEventListener("submit", function(e) {
+          e.preventDefault();
+          const movieId = this.getAttribute("data-id");
+          const textarea = this.querySelector("textarea");
+          const select = this.querySelector("select");
+
+          const reviewText = textarea.value.trim();
+          const rating = parseInt(select.value);
+
+          if (!reviewText || !rating) return;
+
+          const review = {
+            text: reviewText,
+            rating,
+            date: new Date().toLocaleString()
+          };
+
+          if (!reviews[movieId]) {
+            reviews[movieId] = [];
+          }
+          reviews[movieId].push(review);
+
+          this.reset(); // Clear form
+          renderReviews(movieId);
+        });
+      });
+    }
+
+    // Display all reviews for a movie
+    function renderReviews(movieId) {
+      const container = document.getElementById(`reviews-${movieId}`);
+      container.innerHTML = "";
+
+      (reviews[movieId] || []).forEach(r => {
+        const div = document.createElement("div");
+        div.className = "review";
+        div.innerHTML = `
+          <p class="stars">${"★".repeat(r.rating)} (${r.rating}/5)</p>
+          <p>${r.text}</p>
+          <small>${r.date}</small>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Initial render
+    renderMovies();
+  </script>
+</body>
+</html>
